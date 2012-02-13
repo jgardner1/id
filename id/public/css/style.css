@@ -1,0 +1,7 @@
+table.horizontal th {
+  text-align: right;
+}
+
+span.error-message {
+  color: red;
+}

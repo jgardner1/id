@@ -13,8 +13,10 @@ setup(
     author_email='',
     url='',
     install_requires=[
-        "Pylons>=1.0.1rc1",
-        "SQLAlchemy>=0.5",
+        "Pylons==1.0.1rc1",
+        "SQLAlchemy==0.7.5",
+        "flup",
+        "pymetrics",
     ],
     setup_requires=["PasteScript>=1.6.3"],
     packages=find_packages(exclude=['ez_setup']),
