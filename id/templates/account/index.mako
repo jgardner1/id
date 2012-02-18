@@ -1,13 +1,11 @@
 <%inherit file="/layout/basic.mako"/>
-<h2>A Universal Online ID System</h2>
-
-<table class="horizontal">
+<table class="table-horizontal">
   <tr>
     <th>Username:</th>
     <td>${c.user.username}</td>
   </tr>
   <tr>
-    <th>Email</th>
+    <th>Email:</th>
     <td>${c.user.email}</td>
   </tr>
 <table>
@@ -17,14 +15,14 @@
   <li>${h.link_to("Modify Account", url(controller='account', action='edit'))}</li>
 </ul>
 
-<table>
+<table class="table table-bordered table-striped">
   <tr>
     <th>Token ID</th>
     <th>Service ID</th>
   </tr>
 % for token in c.tokens:
   <tr>
-    <td>${h.link_to(token.id+u'@id.jonathangardner.net',
+    <td>${h.link_to(unicode(token.id)+u'@id.jonathangardner.net',
       url(controller='generate', action='show', id=token.id))}</td>
     <td>${token.service_id}</td>
   </tr>

@@ -11,6 +11,7 @@ from pylons.decorators import validate
 from id.lib.base import BaseController, render
 from id.lib.auth import requires_login
 from id.model import meta, Token
+import id.lib.helpers as h
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +37,12 @@ class GenerateController(BaseController):
 
     @requires_login
     def index(self):
+        c.section = 'Account'
+        c.breadcrumbs = [
+            h.link_to('Home', url('/')),
+            h.link_to('Account', url('/account')),
+            "Generate ID",
+        ]
         return render('/generate/index.mako')
 
     @requires_login
@@ -59,6 +66,12 @@ class GenerateController(BaseController):
 
     @requires_login
     def show(self, id):
+        c.section = 'Account'
+        c.breadcrumbs = [
+            h.link_to('Home', url('/')),
+            h.link_to('Account', url('/account')),
+            "Generate ID",
+        ]
         c.token = meta.Session.query(Token).get(id)
 
         if not c.token:

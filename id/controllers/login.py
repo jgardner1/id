@@ -39,10 +39,15 @@ class LoginForm(formencode.Schema):
 class LoginController(BaseController):
 
     def index(self):
+        c.r = request.params.get('r')
         return render('/login/index.mako')
 
     @validate(schema=LoginForm(), form='index',
         text_as_default=True)
     def submit(self):
-        redirect(url(controller='account'))
+        c.r = request.params.get('r')
+        if c.r.startswith('/'):
+            redirect(c.r)
+        else:
+            redirect(url(controller='account'))
 

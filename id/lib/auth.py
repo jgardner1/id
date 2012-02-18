@@ -3,7 +3,7 @@ from decorator import decorator
 import formencode
 from formencode import validators
 
-from pylons import session, tmpl_context as c, url
+from pylons import session, tmpl_context as c, url, request
 from pylons.controllers.util import redirect
 
 from id.model import meta, User
@@ -42,7 +42,7 @@ def requires_login(f, *args, **kw):
     try:
         c.user = current_user()
     except NotLoggedIn:
-        redirect(url(controller='login'))
+        redirect(url(controller='login', r=request.path_qs))
 
     return f(*args, **kw)
 

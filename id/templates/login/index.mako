@@ -1,20 +1,24 @@
 <%inherit file="/layout/basic.mako"/>
-<form method="POST" action="${url(controller='login', action='submit')}">
-<table class="horizontal">
-  <tr>
-    <th>Username:</th>
-    <td><input type="text" name="username"/></td>
-  </tr>
-  <tr>
-    <th>Password:</th>
-    <td><input type="password" name="password"/></td>
-  </tr>
-  <tr>
-    <th></th>
-    <td>
-      <button>Login</button>
-      ${h.link_to('Cancel', url(controller='main'))}
-    </td>
-  </tr>
-<table>
+<form class="well form-horizontal" method="POST" action="${url(controller='login', action='submit')}">
+  <input type="hidden" name="r" value="${c.r}"/>
+  <fieldset>
+    <legend>Login</legend>
+    <div class="control-group">
+      <label class="control-label" for="username">Username:</label>
+      <div class="controls">
+        <input type="text" name="username"/>
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="password">Password:</label>
+      <div class="controls">
+        <input type="password" name="password"/>
+      </div>
+    </div>
+    <div class="form-actions">
+      <input type="submit" class="btn btn-primary" value="Login"/>
+      <a class="btn" href="${url('/forgot')}">I Forgot My Password</a>
+      <a class="btn" href="${url('/')}">Cancel</a>
+    </div>
+  </fieldset>
 </form>

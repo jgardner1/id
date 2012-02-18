@@ -11,6 +11,7 @@ from pylons.decorators import validate
 from id.lib.base import BaseController, render
 from id.lib.auth import requires_login
 from id.model import meta, Token
+import id.lib.helpers as h
 
 log = logging.getLogger(__name__)
 
@@ -40,12 +41,25 @@ class AccountController(BaseController):
 
     @requires_login
     def index(self):
+        c.section = 'account'
+        c.breadcrumbs = [
+            h.link_to('Home', url('/')),
+            "Account",
+        ]
+
         c.tokens = meta.Session.query(Token) \
             .filter(Token.user_id == c.user.id)
         return render('/account/index.mako')
 
     @requires_login
     def edit(self):
+        c.section = 'account'
+        c.breadcrumbs = [
+            h.link_to('Home', url('/')),
+            h.link_to('Account', url(controller='account', action='index')),
+            "Edit",
+        ]
+
         return htmlfill.render(
             render('/account/edit.mako'),
             dict(email=c.user.email),

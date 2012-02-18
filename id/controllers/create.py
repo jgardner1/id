@@ -8,6 +8,7 @@ from pylons.decorators import validate
 
 from id.lib.base import BaseController, render
 from id.lib.auth import UniqueUsername, register
+import id.lib.helpers as h
 
 log = logging.getLogger(__name__)
 
@@ -33,6 +34,12 @@ class CreateForm(formencode.Schema):
 class CreateController(BaseController):
 
     def index(self):
+        c.section = 'register'
+        c.breadcrumbs = [
+            h.link_to('Home', url('/')),
+            'Create Account',
+        ]
+        c.r = request.params.get('r')
         return render('/create/index.mako')
 
     @validate(schema=CreateForm(), form='index',
@@ -42,4 +49,9 @@ class CreateController(BaseController):
             username=self.form_result['username'],
             email=self.form_result['email'],
             password=self.form_result['password1'])
-        return redirect(url(controller='account'))
+
+        c.r = request.params.get('r')
+        if c.r and c.r.startswith('/'):
+            redirect(c.r)
+        else:
+            redirect(url(controller='account'))
