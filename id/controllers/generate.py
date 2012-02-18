@@ -1,5 +1,8 @@
 import logging
 import uuid
+import random
+from datetime import datetime, timedelta
+import base64
 
 import formencode
 from formencode import validators
@@ -10,27 +13,16 @@ from pylons.decorators import validate
 
 from id.lib.base import BaseController, render
 from id.lib.auth import requires_login
-from id.model import meta, Token
+from id.model import meta, Token, Service
 import id.lib.helpers as h
 
 log = logging.getLogger(__name__)
-
-class UUIDValidator(formencode.FancyValidator):
-    def _to_python(self, value, state):
-        try:
-            return uuid.UUID(value)
-        except ValueError:
-            raise formencode.Invalid(
-                "That doesn't appear to be a valid UUID",
-                value, state)
 
 class GenerateForm(formencode.Schema):
     allow_extra_fields  = True
     filter_extra_fields = True
 
-    service_id  = formencode.All(
-        validators.UnicodeString(not_empty=True),
-        UUIDValidator)
+    service_url  = validators.URL(not_empty=True)
 
 
 class GenerateController(BaseController):
@@ -47,20 +39,35 @@ class GenerateController(BaseController):
 
     @requires_login
     @validate(schema=GenerateForm(), form='index',
+        post_only=False,
+        on_get=True,
         text_as_default=True)
     def submit(self):
-        service_id = self.form_result['service_id']
+        service_url = self.form_result['service_url']
+        service = meta.Session.query(Service) \
+            .filter(Service.url == service_url) \
+            .first()
+
+        if not service:
+            # TODO: Query for the URL. If it doesn't load, or doesn't show what we
+            # expect to see, it is not a service.
+            service = Service(
+                url=service_url,
+                update_url=service_url+'/update')
+            meta.Session.add(service)
+
         token = meta.Session.query(Token) \
-            .filter(Token.user_id==c.user.id) \
-            .filter(Token.service_id==service_id) \
+            .filter(Token.user==c.user) \
+            .filter(Token.service==service) \
             .first()
 
         if not token:
-            token = Token(
-                user_id=c.user.id,
-                service_id=service_id)
+            token = Token(user=c.user, service=service)
             meta.Session.add(token)
-            meta.Session.commit()
+
+        token.password = ''.join((chr(random.getrandbits(8)) for i in range(64)))
+        token.expires = datetime.utcnow() + timedelta(minutes=5)
+        meta.Session.commit()
 
         redirect(url(controller='generate', action='show', id=token.id))
 
@@ -72,12 +79,14 @@ class GenerateController(BaseController):
             h.link_to('Account', url('/account')),
             "Generate ID",
         ]
-        c.token = meta.Session.query(Token).get(id)
-
-        if not c.token:
+        token = meta.Session.query(Token).get(id)
+        if not token:
             return render('/generate/show_no_token.mako')
-        else:
-            return render('/generate/show.mako')
 
-
-
+        c.service_url = token.service.url
+        c.auth_url = url(
+            controller='svc', action='auth',
+            id=token.id,
+            qualified=True)
+        c.password = base64.urlsafe_b64encode(token.password)
+        return render('/generate/show.mako')

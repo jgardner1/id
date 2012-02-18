@@ -35,6 +35,8 @@ def current_user():
         raise NotLoggedIn
 
     user = meta.Session.query(User).get(id)
+    if not user:
+        raise NotLoggedIn
     return user
 
 @decorator
